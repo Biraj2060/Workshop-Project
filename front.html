@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editable To-Do List</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #ff4e50, #f9d423);
+      padding: 25px 30px;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px 10px 0 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      color: white;
+      text-align: center;
+    }
+
+    .header h2 {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      width: 70%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px 0 0 6px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .addBtn {
+      width: 30%;
+      background-color: #ffffff;
+      color: #333;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 0 6px 6px 0;
+      transition: background-color 0.3s;
+    }
+
+    .addBtn:hover {
+      background-color: #e2e2e2;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    ul li {
+      padding: 16px 20px 16px 45px;
+      font-size: 18px;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      transition: background 0.3s, color 0.3s;
+      cursor: pointer;
+    }
+
+    ul li:last-child {
+      border-bottom: none;
+    }
+
+    ul li:hover {
+      background: #f9f9f9;
+    }
+
+    ul li.checked {
+      text-decoration: line-through;
+      color: #aaa;
+      background: #e0e0e0;
+    }
+
+    ul li.checked::before {
+      content: '✔';
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: green;
+    }
+
+    .close {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #888;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .close:hover {
+      color: #f44336;
+    }
+
+    .edit-input {
+      width: 100%;
+      border: none;
+      font-size: 18px;
+      padding: 12px 20px 12px 45px;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="myDIV" class="header">
+    <h2>Editable To Do List</h2>
+    <input type="text" id="myInput" placeholder="Add a new task...">
+    <span onclick="newElement()" class="addBtn">Add</span>
+  </div>
+
+  <ul id="myUL">
+    <!-- Tasks will appear here -->
+  </ul>
+
+  <script>
+    function createCloseButton(li) {
+      const span = document.createElement("SPAN");
+      span.className = "close";
+      span.textContent = "\u00D7";
+      span.onclick = function () {
+        li.remove();
+      };
+      li.appendChild(span);
+    }
+
+    function makeEditable(li) {
+      li.ondblclick = function () {
+        const isChecked = li.classList.contains('checked');
+        const taskText = li.firstChild.textContent.trim();
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "edit-input";
+        input.value = taskText;
+
+        input.onblur = function () {
+          if (input.value.trim()) {
+            li.innerHTML = input.value.trim();
+            if (isChecked) {
+              li.classList.add('checked');
+            }
+            createCloseButton(li);
+            makeEditable(li);
+          } else {
+            alert("Task can't be empty.");
+            input.focus();
+          }
+        };
+
+        input.onkeydown = function (e) {
+          if (e.key === "Enter") {
+            input.blur();
+          }
+        };
+
+        li.innerHTML = '';
+        li.appendChild(input);
+        input.focus();
+      };
+    }
+
+    function newElement() {
+      const inputValue = document.getElementById("myInput").value.trim();
+      if (inputValue === '') {
+        alert("You must write something!");
+        return;
+      }
+
+      const li = document.createElement("li");
+      li.textContent = inputValue;
+      document.getElementById("myUL").appendChild(li);
+      document.getElementById("myInput").value = "";
+
+      createCloseButton(li);
+      makeEditable(li);
+    }
+
+    // Toggle check
+    document.getElementById("myUL").addEventListener('click', function (e) {
+      if (e.target.tagName === 'LI') {
+        e.target.classList.toggle('checked');
+      }
+    });
+
+    // Optional: Starter Tasks
+    ["Finish homework", "Read a book", "Buy groceries"].forEach(task => {
+      const li = document.createElement("li");
+      li.textContent = task;
+      document.getElementById("myUL").appendChild(li);
+      createCloseButton(li);
+      makeEditable(li);
+    });
+  </script>
+
+</body>
+</html>
